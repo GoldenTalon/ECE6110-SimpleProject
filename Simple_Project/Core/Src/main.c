@@ -55,7 +55,7 @@ UART_HandleTypeDef huart3;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
-uint8_t buf[12];
+uint8_t buf[30];
 int8_t number1;
 int8_t number2;
 static const uint8_t TMP102_ADDR = 0x48 << 1; // Use 8-bit address
@@ -125,6 +125,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
     num1 = 5;
     num2 =10;
+    val = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -148,11 +149,11 @@ int main(void)
       */
         //Combine the bytes
         //val = ((int16_t)buf[0] << 4) | (buf[1] >> 4);
-    	val = num1*num2;
+    	val = __QADD16(val,num2);
         // Convert to 2's complement, since temperature can be negative
-        if ( val > 0x7FF ) {
-          val |= 0xF000;
-        }
+        //if ( val > 0x7FF ) {
+        //  val |= 0xF000;
+        //}
 
         // Convert to float temperature value (Celsius)
         temp_c = val;
@@ -161,9 +162,8 @@ int main(void)
         // Convert temperature to decimal format
         temp_c *= 100;
         sprintf((char*)buf,
-              "%u.%u C\r\n",
-              ((unsigned int)temp_c / 100),
-              ((unsigned int)temp_c % 100));
+              "QADD Result: %u\r\n",
+              ((unsigned int)val));
      // }
     //}
 
@@ -171,7 +171,7 @@ int main(void)
     HAL_UART_Transmit(&huart1, buf, strlen((char*)buf), HAL_MAX_DELAY);
 
     // Wait
-    HAL_Delay(500);
+    HAL_Delay(50);
 
     /* USER CODE END WHILE */
 
